@@ -118,18 +118,20 @@ end
 zonas = ["top","middle","bottom"];
 
 % Colors
-c_comp      = [0.08, 0.51, 0.51];      % compression (dark)
-c_decomp    = [0.61, 0.61, 0.61];      % decompression (dark)
+c_comp = [0.08,0.51,0.51];   % green
+c_decomp = [0.61,0.61,0.61];    % grey
 
-c_comp_p    = [0.5647, 0.7608, 0.7608]; % raw compression points
-c_decomp_p  = [0.8, 0.8, 0.8];          % raw decompression points
+c_comp_p =  [0.54 0.75 0.75];   %green
+c_decomp_p = [0.8 0.8 0.8];    % grey
 
 
 %% Mean Fy
 
 figure
+t = tiledlayout(1,3,'TileSpacing','compact','Padding','compact');
+
 for i = 1:3
-    subplot(1,3,i); hold on
+    nexttile; hold on
 
     mask = zona == zonas(i);
 
@@ -150,16 +152,20 @@ for i = 1:3
     plot(p, Fy_d, '--', 'Color', c_decomp, 'LineWidth',4)
 
     title(upper(zonas(i)), 'Interpreter','latex')
-    xlabel('Confining pressure (kPa)', 'Interpreter','latex')
-    ylabel('$F_y^{mean}$', 'Interpreter','latex')
-    set(gca,'TickLabelInterpreter','latex','FontSize',16)
+    set(gca,'TickLabelInterpreter','latex','FontSize',14)
+    box(gca,'on');
+    hold(gca,'off');
 end
+xlabel(t,'Confining pressure (kPa)', 'Interpreter','latex','FontSize',16)
+ylabel(t,'$F_x^{mean}$', 'Interpreter','latex','FontSize',16)
 
 
 %% Mean Fx
-% figure
+figure
+t = tiledlayout(1,3,'TileSpacing','compact','Padding','compact');
+
 for i = 1:3
-    subplot(1,3,i); hold on
+    nexttile; hold on
 
     mask = zona == zonas(i);
     Fpar = Fx_mean(mask);
@@ -179,17 +185,20 @@ for i = 1:3
     plot(p,Fd,'--','Color',c_decomp,'LineWidth',4)
 
     title(upper(zonas(i)),'Interpreter','latex')
-    xlabel('Confining pressure (kPa)','Interpreter','latex')
-    ylabel('$F_x^{mean}$','Interpreter','latex')
-    set(gca,'TickLabelInterpreter','latex','FontSize',16)
+    set(gca,'TickLabelInterpreter','latex','FontSize',14)
+    box(gca,'on');
+    hold(gca,'off');
 end
-
+    xlabel(t,'Confining pressure (kPa)','Interpreter','latex','FontSize',16)
+    ylabel(t,'$F_y^{mean}$','Interpreter','latex','FontSize',16)
 
 %% Mean Fz
 
 figure
+t = tiledlayout(1,3,'TileSpacing','compact','Padding','compact');
+
 for i = 1:3
-    subplot(1,3,i); hold on
+    nexttile; hold on
 
     mask = zona == zonas(i);
     Fpar = Fz_mean(mask);
@@ -209,21 +218,25 @@ for i = 1:3
     plot(p,Fd,'--','Color',c_decomp,'LineWidth',4)
 
     title(upper(zonas(i)),'Interpreter','latex')
-    xlabel('Confining pressure (kPa)','Interpreter','latex')
-    ylabel('$F_z^{mean}$','Interpreter','latex')
-    set(gca,'TickLabelInterpreter','latex','FontSize',16)
-end
-
+    set(gca,'TickLabelInterpreter','latex','FontSize',14)
+    box(gca,'on');
+    hold(gca,'off');
+end 
+    xlabel(t,'Confining pressure (kPa)','Interpreter','latex','FontSize',16)
+    ylabel(t,'$F_yz^{mean}$','Interpreter','latex','FontSize',16)
+    
 
 %% Maximum force components
 
 ForceMax = {Fx_max, Fy_max, Fz_max};
-labels   = {'$F_x^{max}$','$F_y^{max}$','$F_z^{max}$'};
+labels   = {'$F_y^{max}$','$F_x^{max}$','$F_z^{max}$'};
 
 for k = 1:3
     figure
+    t = tiledlayout(1,3,'TileSpacing','compact','Padding','compact');
+
     for i = 1:3
-        subplot(1,3,i); hold on
+        nexttile; hold on
 
         mask = zona == zonas(i);
         Fpar = ForceMax{k}(mask);
@@ -243,8 +256,10 @@ for k = 1:3
         plot(p,Fd,'--','Color',c_decomp,'LineWidth',4)
 
         title(upper(zonas(i)),'Interpreter','latex')
-        xlabel('Confining pressure (kPa)','Interpreter','latex')
-        ylabel(labels{k},'Interpreter','latex')
-        set(gca,'TickLabelInterpreter','latex','FontSize',16)
+        set(gca,'TickLabelInterpreter','latex','FontSize',14)
+        box(gca,'on');
+        hold(gca,'off');
     end
+    xlabel(t,'Confining Pressure (kPa)','Interpreter','latex','FontSize',16)
+    ylabel(t,labels{k},'Interpreter','latex','FontSize',16)
 end

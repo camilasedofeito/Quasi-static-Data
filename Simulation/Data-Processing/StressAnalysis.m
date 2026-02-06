@@ -55,6 +55,8 @@ FloorPosition = readmatrix(fullfile(directory, "floorPosition.dat"));
 % List of stress tensor files
 files = {dir(directory).name};
 % Loop over stress tensor files
+
+
 for i = 3:length(files)-2
     data = readmatrix(fullfile(directory, files{i}));
 
@@ -105,8 +107,6 @@ times = sort(times);
 % Confining pressure computed from the normal force at the bottom wall
 ConfiningPressure = FloorData(1:length(steps),2) ./ BoxSide^2 /1000;
 
-% Index of maximum confinement
-[~, posmax] = max(ConfiningPressure);
 
 % Bottom plane (Y = ymin) used as a virtual pressure sensor
 places = find(points(:,2) == min(points(:,2)));
@@ -123,18 +123,20 @@ MIDDLE = 0.2536;
 BOTTOM = 0.033083;
 
 % Particles located at the bottom plane (Y = BOTTOM)
-places = find(abs(points(:,2) - BOTTOM) < 1e-4);
+places = find(abs(points(:,1) - MIDDLE) < 1e-2);
 placesxmin = places;
 newpoints  = points(places,:);
 %%
 % 3D scatter plot of all sensor positions
 figure
-scatter3(points(:,1), points(:,2), points(:,3),10,[1:1:length(points(:,1))], 'filled');
+scatter3(newpoints(:,1), newpoints(:,2), newpoints(:,3),10,places, 'filled');
 xlabel('$x$', 'FontSize', 11, 'Interpreter', 'latex');
 ylabel('$y$', 'FontSize', 11, 'Interpreter', 'latex');
 zlabel('$z$', 'FontSize', 11, 'Interpreter', 'latex');
 title('All points', 'Interpreter', 'latex');
 set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 16);
+box(gca,'on');
+hold(gca,'off');
 
 %% Pressure vs force for selected sensors
 
@@ -147,13 +149,12 @@ set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 16);
 % Six cells are manually selected to represent bottom and side regions
 % of the sample and act as virtual stress sensors.
 
-S1Bottom = 2766;
-S2Bottom = 2760;
-S3Bottom = 2763;
-
-S1Side   = 2692;
-S2Side   = 2800;
-S3Side   = 2800;
+S1Bottom = 1645;
+S2Bottom = 1972;
+S3Bottom = 2620;
+S1Side   = 2735;
+S2Side   = 2771;
+S3Side   = 2807;
 
 % Sensor positions
 S1BottomPos = points(S1Bottom,:);
@@ -221,37 +222,44 @@ cold = ["#5F8A5F", "#5E5C8A", "#D16B6B", "#7E2F5A", "#7E2F2F", "#7E5A2F",...
         "#5F8A5F", "#5E5C8A", "#D16B6B", "#7E2F5A", "#7E2F2F", "#7E5A2F"];
 figure
 
-% Full compression–decompression cycles (light colors),
-% split into loading and unloading branches using posmax.
-plot(ConfiningPressure(1:posmax), stress1(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(1)); hold on
-plot(ConfiningPressure(posmax+1:end), stress1(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(1));
-
-plot(ConfiningPressure(1:posmax), stress2(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(2));
-plot(ConfiningPressure(posmax+1:end), stress2(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(2));
-
-plot(ConfiningPressure(1:posmax), stress3(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(3));
-plot(ConfiningPressure(posmax+1:end), stress3(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(3));
-
-plot(ConfiningPressure(1:posmax), stress4(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(4));
-plot(ConfiningPressure(posmax+1:end), stress4(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(4));
-
-plot(ConfiningPressure(1:posmax), stress5(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(5));
-plot(ConfiningPressure(posmax+1:end), stress5(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(5));
-
-plot(ConfiningPressure(1:posmax), stress6(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(6));
-plot(ConfiningPressure(posmax+1:end), stress6(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',colc(6));
+for i = 1:size(stress_matrix,1)
+    % Full compression–decompression cycles (light colors),
+    % split into loading and unloading branches using timedivindex.
+    st = stress_matrix(i,:);
+    %Loading (4 cycles)
+    plot(ConfiningPressure(timedivindex(1):timedivindex(2)), ...
+    st(timedivindex(1):timedivindex(2)), ...
+    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    hold on
+    plot(ConfiningPressure(timedivindex(3):timedivindex(4)), ...
+    st(timedivindex(3):timedivindex(4)), ...
+    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    
+    plot(ConfiningPressure(timedivindex(5):timedivindex(6)), ...
+    st(timedivindex(5):timedivindex(6)), ...
+    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    
+    plot(ConfiningPressure(timedivindex(7):timedivindex(8)), ...
+    st(timedivindex(7):timedivindex(8)), ...
+    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    
+    %Unloading (4 cycles)
+    plot(ConfiningPressure(timedivindex(2):timedivindex(3)), ...
+    st(timedivindex(2):timedivindex(3)), ...
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
+    
+    plot(ConfiningPressure(timedivindex(4):timedivindex(5)), ...
+    st(timedivindex(4):timedivindex(5)), ...
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
+    
+    plot(ConfiningPressure(timedivindex(6):timedivindex(7)), ...
+    st(timedivindex(6):timedivindex(7)), ...
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
+    
+    plot(ConfiningPressure(timedivindex(8):timedivindex(9)), ...
+    st(timedivindex(8):timedivindex(9)), ...
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
+end
 
 % Initialization of cycle-averaged matrices
 ini = zeros(6,120);
@@ -290,8 +298,7 @@ end
 
 ylabel('Internal Stress (kPa)','Interpreter','latex');
 xlabel('External Force (kN)','Interpreter','latex');
-title('Avg. between cycles','Interpreter','latex');
-set(gca,'TickLabelInterpreter','latex','FontSize',16);
+set(gca,'TickLabelInterpreter','latex','FontSize',14);
 
 %% Stress–pressure relation averaged over sensors
 
@@ -303,36 +310,43 @@ c_decomp_p = [0.8 0.8 0.8];    % grey
 
 figure
 
-plot(ConfiningPressure(1:posmax), stress1(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_comp_p); hold on
-plot(ConfiningPressure(posmax+1:end), stress1(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_decomp_p);
 
-plot(ConfiningPressure(1:posmax), stress2(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
-plot(ConfiningPressure(posmax+1:end), stress2(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_decomp_p);
-
-plot(ConfiningPressure(1:posmax), stress3(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
-plot(ConfiningPressure(posmax+1:end), stress3(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_decomp_p);
-
-plot(ConfiningPressure(1:posmax), stress4(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
-plot(ConfiningPressure(posmax+1:end), stress4(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_decomp_p);
-
-plot(ConfiningPressure(1:posmax), stress5(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
-plot(ConfiningPressure(posmax+1:end), stress5(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_decomp_p);
-
-plot(ConfiningPressure(1:posmax), stress6(1:posmax), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
-plot(ConfiningPressure(posmax+1:end), stress6(posmax+1:end), ...
-     'Marker','.', 'LineStyle','none', 'Color',c_decomp_p);
-
+for i = 1:size(stress_matrix,1)
+    st = stress_matrix(i,:);
+    %Loading (4 cycles)
+    plot(ConfiningPressure(timedivindex(1):timedivindex(2)), ...
+    st(timedivindex(1):timedivindex(2)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
+    hold on
+    plot(ConfiningPressure(timedivindex(3):timedivindex(4)), ...
+    st(timedivindex(3):timedivindex(4)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
+    
+    plot(ConfiningPressure(timedivindex(5):timedivindex(6)), ...
+    st(timedivindex(5):timedivindex(6)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
+    
+    plot(ConfiningPressure(timedivindex(7):timedivindex(8)), ...
+    st(timedivindex(7):timedivindex(8)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_comp_p);
+    
+    %Unloading (4 cycles)
+    plot(ConfiningPressure(timedivindex(2):timedivindex(3)), ...
+    st(timedivindex(2):timedivindex(3)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_decomp_p );
+    
+    plot(ConfiningPressure(timedivindex(4):timedivindex(5)), ...
+    st(timedivindex(4):timedivindex(5)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_decomp_p );
+    
+    plot(ConfiningPressure(timedivindex(6):timedivindex(7)), ...
+    st(timedivindex(6):timedivindex(7)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_decomp_p );
+    
+    plot(ConfiningPressure(timedivindex(8):timedivindex(9)), ...
+    st(timedivindex(8):timedivindex(9)), ...
+    'Marker','.', 'LineStyle','none', 'Color',c_decomp_p );
+end
 
 plot(ConfiningPressure(timedivindex(1):timedivindex(2)), ...
      mean(ini(1:3,:), 'omitnan'), 'LineWidth',5, 'LineStyle','-','Color',c_comp); hold on
@@ -344,10 +358,18 @@ plot(ConfiningPressure(timedivindex(2):(timedivindex(2)+len-1)), ...
 plot(ConfiningPressure(timedivindex(2):(timedivindex(2)+len-1)), ...
      mean(fin(4:6,:), 'omitnan'), 'LineWidth',5, 'LineStyle','--','Color',c_decomp);
 
-title('Avg. between sensors','Interpreter','latex');
 ylabel('Internal Stress (kPa)','Interpreter','latex');
 xlabel('Confining Pressure (kPa)','Interpreter','latex');
-set(gca,'TickLabelInterpreter','latex','FontSize',16);
+set(gca,'TickLabelInterpreter','latex','FontSize',14);
+box(gca,'on');
+hold(gca,'off');
+annotation('arrow', [0.63 0.7367], [0.28 0.29], 'Color', c_comp, 'LineWidth', 3,'LineStyle','--');
+annotation('arrow', [0.6400 0.7527], [0.45 0.51], 'Color', c_comp, 'LineWidth', 3);
+annotation('arrow', [0.89 0.7867], [0.71,0.6525], 'Color', c_decomp, 'LineWidth', 3);
+annotation('arrow', [0.8707 0.7690], [ 0.4945 0.4542], 'Color', c_decomp, 'LineWidth', 3,'LineStyle','--');
+
+text(0.85,0.15,'$\sigma_{yy}$','Units','normalized','Interpreter','latex')
+text(0.85,0.80,'$\sigma_{xx}$','Units','normalized','Interpreter','latex')
 
 %% Consistency check: internal stress vs bottom wall force
 ForceY = FloorData(:,2);
@@ -356,5 +378,6 @@ figure
 plot(times, ForceY(1:length(times)), 'LineWidth',5);
 xlabel('Time (s)','Interpreter','latex');
 ylabel('Internal Stress (kPa)','Interpreter','latex');
-title('$\sigma_{yy}$ vs. Time','Interpreter','latex');
-set(gca,'TickLabelInterpreter','latex','FontSize',16);
+set(gca,'TickLabelInterpreter','latex','FontSize',14);
+box(gca,'on');
+hold(gca,'off');
