@@ -1,21 +1,42 @@
+%% Wall Force post-processing and stress-strain analysis 
+%
+%  This script post-processes DEM simulation outputs to
+%  compute macroscopic stress–strain curves from forces
+%  acting on the confining boundaries.
+%
+%  The analysis focuses on cyclic compression–decompression
+%  tests, separating loading and unloading branches in order
+%  to quantify hysteresis effects. Stresses are computed from
+%  wall forces and averaged over cycles as a function of strain.
+%
+%  Output: Stress vs. relative strain curves with individual
+%  trajectories and cycle-averaged compression/decompression
+%  branches, formatted for publication-quality figures.
+
+% Author: Noelia Olivera Rodríguez
+% Requirements: MATLAB R2021a or newer
+
 clear; clc; close all;
 
 
-%% =========================================================
-%  CARGAR DATOS DE FUERZA EN PAREDES
-%% =========================================================
+%% Load wall force and position data
+% Directory containing DEM output files
+scriptDir = fileparts(mfilename('fullpath'));
+directory   = fullfile(scriptDir, '..', 'Data\Walls');
 
-directory = 'C:\Users\Noeli\Camila\3CiclosBajo';
-
+% Vertical position of the bottom plate (used to compute strain)
 FloorPosition = readmatrix(fullfile(directory,"floorPosition.dat"));
 FloorPosition = FloorPosition(:,2);
 
+% Normal force acting on the bottom plate
 FloorForce = readmatrix(fullfile(directory,"floorForce.dat"));
 FloorForce = FloorForce(:,2);
 
+% Normal force acting on the top plate
 roofForce = readmatrix(fullfile(directory,"roofForce.dat"));
 roofForce = roofForce(:,2);
 
+% Forces acting on lateral walls
 xForce = readmatrix(fullfile(directory,"x+WallForce.dat"));
 xForce = xForce(:,1);
 
@@ -28,27 +49,41 @@ zForce = zForce(:,3);
 zForcemin = readmatrix(fullfile(directory,"z-WallForce.dat"));
 zForcemin = zForcemin(:,3);
 
+% Time vector (used only for reference)
 times = linspace(0,0.5,length(FloorForce));
 
-%% =========================================================
-%  STRAIN
-%% =========================================================
 
+%% Strain computation
+
+% Initial sample height
 L0 = 0.4;
+
+% Engineering strain based on bottom plate displacement
 strain = (L0 - FloorPosition) / L0;
+
+% Relative strain expressed in percentage
 strain_pct = 100 - 100*strain;
 
-%% =========================================================
-%  COMPRESIÓN / DESCOMPRESIÓN
-%% =========================================================
 
+%% Identification of compression/decompression stages
+
+% Incremental displacement of the bottom plate
 dPos = diff(FloorPosition);
+
+% Compression: increasing plate position
 idx_comp   = find(dPos > 0) + 1;
+
+% Decompression: decreasing plate position
 idx_decomp = find(dPos < 0) + 1;
 
-%% =========================================================
-%  FUNCIÓN DE PROMEDIO POR CICLO
-%% =========================================================
+
+%% Cycle-Averaging function
+%  This function computes average compression and
+%  decompression curves as a function of a common x-axis
+%  (typically strain). Data are first sorted, averaged for
+%  repeated x-values, and then interpolated onto a shared
+%  grid to allow direct comparison between branches.
+%
 
 function [x_common, mean_comp, mean_decomp] = ...
          average_cycle(x, signal, idx_comp, idx_decomp, Npts)
@@ -57,7 +92,7 @@ if nargin < 5
     Npts = 300;
 end
 
-% --- COMPRESIÓN ---
+% --- COMPRESSION BRANCH ---
 xC = x(idx_comp);
 fC = signal(idx_comp);
 [xC, ord] = sort(xC);
@@ -65,7 +100,7 @@ fC = fC(ord);
 [xC_u,~,ic] = unique(xC);
 fC_m = accumarray(ic,fC,[],@mean);
 
-% --- DESCOMPRESIÓN ---
+% --- DECOMPRESSION BRANCH ---
 xD = x(idx_decomp);
 fD = signal(idx_decomp);
 [xD, ord] = sort(xD);
@@ -73,32 +108,32 @@ fD = fD(ord);
 [xD_u,~,id] = unique(xD);
 fD_m = accumarray(id,fD,[],@mean);
 
-% --- EJE COMÚN ---
+% --- COMMON X-AXIS ---
 x_common = linspace( ...
     max(min(xC_u),min(xD_u)), ...
     min(max(xC_u),max(xD_u)), ...
     Npts);
 
-% --- INTERPOLACIÓN ---
+% --- INTERPOLATION ON COMMON GRID ---
 mean_comp   = interp1(xC_u,fC_m,x_common,'linear');
 mean_decomp = interp1(xD_u,fD_m,x_common,'linear');
 end
 
-%% =========================================================
-%  STRESS
-%% =========================================================
 
+%% Stress computation
+
+% Vertical stress component (computed from lateral wall forces)
 stress_zz = (abs(zForce)/1000)/0.16;
 [strain_m, zz_comp, zz_decomp] = ...
     average_cycle(strain_pct, stress_zz, idx_comp, idx_decomp);
 
+% Axial (confining) stress from bottom plate force
 stress_yy = (abs(FloorForce)/1000)/0.16;
 [~, yy_comp, yy_decomp] = ...
     average_cycle(strain_pct, stress_yy, idx_comp, idx_decomp);
 
-%% =========================================================
-%  ESTILO GRÁFICO (FIGURA DE REFERENCIA)
-%% =========================================================
+
+%% Graphical style
 
 set(groot,'defaultAxesFontSize',16)
 set(groot,'defaultTextFontSize',16)
@@ -106,43 +141,38 @@ set(groot,'defaultAxesLineWidth',1.2)
 set(groot,'defaultAxesTickDir','out')
 set(groot,'defaultAxesBox','on')
 
-% colores EXACTOS del ejemplo
-c_comp       = [0.08, 0.51, 0.51];     % verde oscuro
-c_decomp     = [0.61, 0.61, 0.61];     % gris oscuro
+% Colors chosen to match reference publication style
+c_comp       = [0.08, 0.51, 0.51];     % dark green (compression)
+c_decomp     = [0.61, 0.61, 0.61];     % dark gray  (decompression)
 
-c_comp_p     = [0.54, 0.75, 0.75];     % verde claro (puntos)
-c_decomp_p   = [0.80, 0.80, 0.80];     % gris claro  (puntos)
+c_comp_p     = [0.54, 0.75, 0.75];     % light green (points)
+c_decomp_p   = [0.80, 0.80, 0.80];     % light gray  (points)
 
-%% =========================================================
-%  STRESS vs STRAIN (ESTILO FINAL)
-%% =========================================================
+
+%% Stress vs. strain plot
 
 figure; hold on
 
-% --- puntos (trayectorias individuales) ---
-%plot(stress_zz(idx_comp), strain_pct(idx_comp),'Marker','.', 'LineStyle','none', 'Color',c_comp_p)
-
-%plot(stress_zz(idx_decomp), strain_pct(idx_decomp),  'Marker','.', 'LineStyle','none', 'Color',c_decomp_p)
-
-plot(stress_yy(idx_comp),strain_pct(idx_comp), ...
+% --- Individual trajectories ---
+plot(stress_yy(idx_comp), strain_pct(idx_comp), ...
      'Marker','.', 'LineStyle','none', 'Color',c_comp_p)
 
-plot( stress_yy(idx_decomp),strain_pct(idx_decomp), ...
+plot(stress_yy(idx_decomp), strain_pct(idx_decomp), ...
      'Marker','.', 'LineStyle','none', 'Color',c_decomp_p)
 
-% --- promedios ---
-%plot( zz_comp, strain_m,  '--',  'Color',c_comp,   'LineWidth',4)
-plot( yy_comp,strain_m,   '-', 'Color',c_comp,   'LineWidth',4)
+% --- Cycle-averaged curves ---
+plot(yy_comp,   strain_m, '-', 'Color',c_comp,   'LineWidth',4)
+plot(yy_decomp, strain_m, '-', 'Color',c_decomp, 'LineWidth',4)
 
-%plot( zz_decomp,strain_m, '--',  'Color',c_decomp, 'LineWidth',4)
-plot( yy_decomp,strain_m, '-', 'Color',c_decomp, 'LineWidth',4)
-
+% --- Direction arrows (loading path) ---
 annotation('arrow', [0.5 0.6], [0.5 0.6], 'Color', c_comp, 'LineWidth', 3);
-annotation('arrow', [0.6 0.5],  [0.88 0.8], 'Color', c_decomp, 'LineWidth', 3);
+annotation('arrow', [0.6 0.5], [0.88 0.8], 'Color', c_decomp, 'LineWidth', 3);
 
+% --- Axis labels ---
 ylabel('$\mathrm{Relative\ Strain}\ (\%)$','Interpreter','latex')
 xlabel('$\mathrm{Confining\ Pressure}\ (\mathrm{kPa})$','Interpreter','latex')
-box(gca,'on');
-hold(gca,'off');
+
 set(gca,'FontSize',14,'TickLabelInterpreter','latex')
+box(gca,'on')
 grid off
+hold(gca,'off')

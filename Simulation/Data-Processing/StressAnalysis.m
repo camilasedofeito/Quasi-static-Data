@@ -44,7 +44,8 @@ rmax = 0.007;            % Maximum particle radius [m]
 
 %% Data extraction
 % Directory containing stress tensor files and boundary force data.
-directory = 'C:\\Users\\Noeli\\Desktop\\stress\\data3CiclosBajo\\';
+scriptDir = fileparts(mfilename('fullpath'));
+directory   = fullfile(scriptDir, '..', 'Data\Stress');
 
 % Reaction force at the bottom plate (divided by 2 due to ESyS output convention)
 FloorData = readmatrix(fullfile(directory, "floorForce.dat"));

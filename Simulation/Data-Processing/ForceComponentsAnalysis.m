@@ -16,7 +16,10 @@ clear; clc; close all;
 
 %% 1. Data loading
 % Table containing force statistics per timestep and region
-T = readtable('C:\Users\Noeli\Camila\3CiclosBajo\xyz_Fuerzas_componentes_centro_corrected.csv');
+scriptDir = fileparts(mfilename('fullpath'));
+directory   = fullfile(scriptDir, '..', 'Data\Forces\xyz_Fuerzas_componentes_centro_corrected.csv');
+
+T = readtable(directory);
 
 % Extract relevant columns
 timestep   = T.timestep;
