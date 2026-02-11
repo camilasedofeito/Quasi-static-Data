@@ -17,8 +17,8 @@ clear; clc; close all;
 %% 1. Data loading
 % Table containing force statistics per timestep and region
 scriptDir = fileparts(mfilename('fullpath'));
-directory   = fullfile(scriptDir, '..', 'Data\Forces\xyz_Fuerzas_componentes_centro_corrected.csv');
-
+directory   = fullfile(scriptDir, '..', 'Data\Forces\xyz_Fuerzas_componentes_entrecentroyesquina_corrected.csv');
+region = 'Medium'; %Center, Corner, Medium
 T = readtable(directory);
 
 % Extract relevant columns
@@ -155,13 +155,14 @@ for i = 1:3
     plot(p, Fy_d, '--', 'Color', c_decomp, 'LineWidth',4)
 
     title(upper(zonas(i)), 'Interpreter','latex')
-    set(gca,'TickLabelInterpreter','latex','FontSize',14)
+    set(gca,'TickLabelInterpreter','latex','FontSize',20)
     box(gca,'on');
     hold(gca,'off');
 end
-xlabel(t,'Confining pressure (kPa)', 'Interpreter','latex','FontSize',16)
-ylabel(t,'$F_x^{mean}$', 'Interpreter','latex','FontSize',16)
-
+set(gcf,'Position',[100 100 820 633])
+xlabel(t,'Confining pressure (kPa)', 'Interpreter','latex','FontSize',20)
+ylabel(t,'$F_x^{mean}$', 'Interpreter','latex','FontSize',20)
+exportgraphics(gcf,'..\Figures\'+ string(region) +'\meanfx.png','Resolution',300)
 
 %% Mean Fx
 figure
@@ -188,53 +189,20 @@ for i = 1:3
     plot(p,Fd,'--','Color',c_decomp,'LineWidth',4)
 
     title(upper(zonas(i)),'Interpreter','latex')
-    set(gca,'TickLabelInterpreter','latex','FontSize',14)
+    set(gca,'TickLabelInterpreter','latex','FontSize',20)
     box(gca,'on');
     hold(gca,'off');
 end
-    xlabel(t,'Confining pressure (kPa)','Interpreter','latex','FontSize',16)
-    ylabel(t,'$F_y^{mean}$','Interpreter','latex','FontSize',16)
-
-%% Mean Fz
-
-figure
-t = tiledlayout(1,3,'TileSpacing','compact','Padding','compact');
-
-for i = 1:3
-    nexttile; hold on
-
-    mask = zona == zonas(i);
-    Fpar = Fz_mean(mask);
-
-    P  = pressure(1:length(Fpar));
-    comp   = is_comp(1:length(Fpar));
-    decomp = is_decomp(1:length(Fpar));
-
-    [p, Fc, Fd] = average_cycle(P, Fpar, comp, decomp);
-
-    Fc = smoothdata(Fc, 'sgolay', 21);
-    Fd = smoothdata(Fd, 'sgolay', 21);
-
-    plot(P(comp),Fpar(comp),'.','MarkerSize',6,'Color',c_comp_p)
-    plot(P(decomp),Fpar(decomp),'.','MarkerSize',6,'Color',c_decomp_p)
-    plot(p,Fc,'-','Color',c_comp,'LineWidth',4)
-    plot(p,Fd,'--','Color',c_decomp,'LineWidth',4)
-
-    title(upper(zonas(i)),'Interpreter','latex')
-    set(gca,'TickLabelInterpreter','latex','FontSize',14)
-    box(gca,'on');
-    hold(gca,'off');
-end 
-    xlabel(t,'Confining pressure (kPa)','Interpreter','latex','FontSize',16)
-    ylabel(t,'$F_yz^{mean}$','Interpreter','latex','FontSize',16)
-    
-
+    set(gcf,'Position',[100 100 820 633])
+    xlabel(t,'Confining pressure (kPa)','Interpreter','latex','FontSize',20)
+    ylabel(t,'$F_y^{mean}$','Interpreter','latex','FontSize',20)
+    exportgraphics(gcf,'..\Figures\'+ string(region) +'\meanfy.png','Resolution',300)
 %% Maximum force components
 
 ForceMax = {Fx_max, Fy_max, Fz_max};
-labels   = {'$F_y^{max}$','$F_x^{max}$','$F_z^{max}$'};
+labels   = {'$F_y^{max}$','$F_x^{max}$'};
 
-for k = 1:3
+for k = 1:2
     figure
     t = tiledlayout(1,3,'TileSpacing','compact','Padding','compact');
 
@@ -259,10 +227,12 @@ for k = 1:3
         plot(p,Fd,'--','Color',c_decomp,'LineWidth',4)
 
         title(upper(zonas(i)),'Interpreter','latex')
-        set(gca,'TickLabelInterpreter','latex','FontSize',14)
+        set(gca,'TickLabelInterpreter','latex','FontSize',20)
         box(gca,'on');
         hold(gca,'off');
     end
-    xlabel(t,'Confining Pressure (kPa)','Interpreter','latex','FontSize',16)
-    ylabel(t,labels{k},'Interpreter','latex','FontSize',16)
+    set(gcf,'Position',[100 100 820 633])
+    xlabel(t,'Confining Pressure (kPa)','Interpreter','latex','FontSize',20)
+    ylabel(t,labels{k},'Interpreter','latex','FontSize',20)
+    exportgraphics(gcf,'..\Figures\'+ string(region) +'\'+string(labels{k}) + ".png",'Resolution',300)
 end
