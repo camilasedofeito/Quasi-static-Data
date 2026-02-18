@@ -16,8 +16,8 @@ clear; clc; close all;
 
 %% 1. Data loading
 % Table containing force statistics per timestep and region
-scriptDir = fileparts(mfilename('fullpath'));
-directory   = fullfile(scriptDir, '..', 'Data\Forces\xyz_Fuerzas_componentes_entrecentroyesquina_corrected.csv');
+scriptDir = pwd;
+directory   = fullfile(scriptDir, '..', 'Data\Forces\xyz_Forces_Medium.csv');
 region = 'Medium'; %Center, Corner, Medium
 T = readtable(directory);
 
@@ -161,7 +161,7 @@ for i = 1:3
 end
 set(gcf,'Position',[100 100 820 633])
 xlabel(t,'Confining pressure (kPa)', 'Interpreter','latex','FontSize',20)
-ylabel(t,'$F_x^{mean}$', 'Interpreter','latex','FontSize',20)
+ylabel(t,'$F_x^{mean}$ (N)', 'Interpreter','latex','FontSize',20)
 exportgraphics(gcf,'..\Figures\'+ string(region) +'\meanfx.png','Resolution',300)
 
 %% Mean Fx
@@ -195,12 +195,12 @@ for i = 1:3
 end
     set(gcf,'Position',[100 100 820 633])
     xlabel(t,'Confining pressure (kPa)','Interpreter','latex','FontSize',20)
-    ylabel(t,'$F_y^{mean}$','Interpreter','latex','FontSize',20)
+    ylabel(t,'$F_y^{mean}$ (N)','Interpreter','latex','FontSize',20)
     exportgraphics(gcf,'..\Figures\'+ string(region) +'\meanfy.png','Resolution',300)
 %% Maximum force components
 
 ForceMax = {Fx_max, Fy_max, Fz_max};
-labels   = {'$F_y^{max}$','$F_x^{max}$'};
+labels   = {'$F_y^{max}$ (N)','$F_x^{max}$ (N)'};
 
 for k = 1:2
     figure

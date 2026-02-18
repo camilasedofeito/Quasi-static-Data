@@ -65,12 +65,12 @@ for i = 3:length(files)-2
     steps = [steps, str2double(extract(convertCharsToStrings(files{i}), digitsPattern))];
 
     % Stress tensor components (divided by 2 due to ESyS convention)
-    sigma_xx = data(:,4);
-    sigma_xy = data(:,5);
-    sigma_xz = data(:,6);
-    sigma_yy = data(:,7);
-    sigma_yz = data(:,8);
-    sigma_zz = data(:,9);
+    sigma_xx = data(:,4) ./ 2;
+    sigma_xy = data(:,5) ./ 2;
+    sigma_xz = data(:,6) ./ 2;
+    sigma_yy = data(:,7) ./ 2;
+    sigma_yz = data(:,8) ./ 2;
+    sigma_zz = data(:,9) ./ 2;
 
     % Local pressure definition
     pressure = -(sigma_xx + sigma_yy + sigma_zz) / 3;
@@ -109,6 +109,14 @@ times = sort(times);
 ConfiningPressure = FloorData(1:length(steps),2) ./ BoxSide^2 /1000;
 
 
+% Bottom plane (Y = ymin) used as a virtual pressure sensor
+places = find(abs(points(:,2)- 0.0331) < 1e-2);
+placesymin = places;
+
+N = length(places);                
+A = BoxSide^2 / N; 
+forcemean = sum(pressuresTB(places,:) * A);
+
 %% Reference plots of sensor locations
 
 % Y-coordinates defining the top, middle and bottom planes
@@ -132,23 +140,14 @@ set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 16);
 box(gca,'on');
 hold(gca,'off');
 
-%% Comparison of Vertical Force from Internal Stress and Base
-places = find(abs(points(:,2)-  0.0331) < 1e-2);
-placesymin = places;
-
-N = length(places);                
-A = BoxSide^2 / N; 
-forcemean = sum(sigmayyTB(places,:) * A);
-
+%% Test
 figure
 plot(times, forcemean, 'LineWidth',2)
 hold on
 plot(times, FloorData(1:length(times),2), 'LineWidth',2)
-legend('Net Force in Section','Wall Force','Interpreter', 'latex')
-title('Consistency check: Section vs Wall Force', 'Interpreter', 'latex');
-set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 16);
-xlabel('Time (s)', 'FontSize', 16, 'Interpreter', 'latex')
-ylabel('Fuerza (N)', 'FontSize', 16, 'Interpreter', 'latex')
+legend('Fuerza calculada desde sección','Fuerza de la base')
+xlabel('Time (s)')
+ylabel('Fuerza (N)')
 
 %% Pressure vs force for selected sensors
 
@@ -375,13 +374,13 @@ xlabel('Confining Pressure (kPa)','Interpreter','latex');
 set(gca,'TickLabelInterpreter','latex','FontSize',14);
 box(gca,'on');
 hold(gca,'off');
-annotation('arrow', [0.63 0.7367], [0.27 0.29], 'Color', c_comp, 'LineWidth', 3,'LineStyle','--');
-annotation('arrow', [0.6400 0.7527], [0.44 0.51], 'Color', c_comp, 'LineWidth', 3);
+annotation('arrow', [0.63 0.7367], [0.28 0.29], 'Color', c_comp, 'LineWidth', 3,'LineStyle','--');
+annotation('arrow', [0.6400 0.7527], [0.45 0.51], 'Color', c_comp, 'LineWidth', 3);
 annotation('arrow', [0.89 0.7867], [0.71,0.6525], 'Color', c_decomp, 'LineWidth', 3);
-annotation('arrow', [0.8707 0.7690], [ 0.4745 0.4342], 'Color', c_decomp, 'LineWidth', 3,'LineStyle','--');
+annotation('arrow', [0.8707 0.7690], [ 0.4945 0.4542], 'Color', c_decomp, 'LineWidth', 3,'LineStyle','--');
 
-text(0.85,0.15,'$\sigma_{yy}$','Units','normalized','Interpreter','latex','FontSize',16)
-text(0.85,0.80,'$\sigma_{xx}$','Units','normalized','Interpreter','latex','FontSize',16)
+text(0.85,0.15,'$\sigma_{yy}$','Units','normalized','Interpreter','latex')
+text(0.85,0.80,'$\sigma_{xx}$','Units','normalized','Interpreter','latex')
 
 %% Consistency check: internal stress vs bottom wall force
 ForceY = FloorData(:,2);

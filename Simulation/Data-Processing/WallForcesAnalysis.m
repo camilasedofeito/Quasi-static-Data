@@ -21,7 +21,7 @@ clear; clc; close all;
 
 %% Load wall force and position data
 % Directory containing DEM output files
-scriptDir = fileparts(mfilename('fullpath'));
+scriptDir = pwd;
 directory   = fullfile(scriptDir, '..', 'Data\Walls');
 
 % Vertical position of the bottom plate (used to compute strain)
