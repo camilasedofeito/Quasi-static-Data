@@ -44,8 +44,7 @@ rmax = 0.007;            % Maximum particle radius [m]
 
 %% Data extraction
 % Directory containing stress tensor files and boundary force data.
-scriptDir = pwd;
-directory   = fullfile(scriptDir, '..', 'Data\Stress');
+directory   = 'C:\Users\Noeli\Documents\Quasi-static\Simulation\Data\Stress'; % path to the Stress folder
 
 % Reaction force at the bottom plate (divided by 2 due to ESyS output convention)
 FloorData = readmatrix(fullfile(directory, "floorForce.dat"));
@@ -117,7 +116,7 @@ MIDDLE = 0.2536;
 BOTTOM = 0.033083;
 
 % Particles located at the bottom plane (Y = BOTTOM)
-places = find(abs(points(:,1) - MIDDLE) < 1e-2);
+places = find(abs(points(:,1) - 0.3667) < 1e-2);
 placesxmin = places;
 newpoints  = points(places,:);
 %%
@@ -149,7 +148,8 @@ title('Consistency check: Section vs Wall Force', 'Interpreter', 'latex');
 set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 16);
 xlabel('Time (s)', 'FontSize', 16, 'Interpreter', 'latex')
 ylabel('Fuerza (N)', 'FontSize', 16, 'Interpreter', 'latex')
-
+%% Places Finder;
+results = find( abs(points(:,1) - 0.1889) < 1e-2  & abs(points(:,2) - 0.1875) < 2.5e-1 &  abs(points(:,3) - 0.1889) < 1e-2);
 %% Pressure vs force for selected sensors
 
 % Stress signals from six manually selected sensors are extracted,
@@ -161,12 +161,12 @@ ylabel('Fuerza (N)', 'FontSize', 16, 'Interpreter', 'latex')
 % Six cells are manually selected to represent bottom and side regions
 % of the sample and act as virtual stress sensors.
 
-S1Bottom = 1645;
-S2Bottom = 1972;
-S3Bottom = 2620;
-S1Side   = 2735;
-S2Side   = 2771;
-S3Side   = 2807;
+S1Bottom = 2673%3268;
+S2Bottom = 2691%1972;
+S3Bottom = 2709%2620;
+S1Side   =  2727%2735;
+S2Side   = 2745%2771;
+S3Side   =  2763%2807;
 
 % Sensor positions
 S1BottomPos = points(S1Bottom,:);
@@ -241,19 +241,19 @@ for i = 1:size(stress_matrix,1)
     %Loading (4 cycles)
     plot(ConfiningPressure(timedivindex(1):timedivindex(2)), ...
     st(timedivindex(1):timedivindex(2)), ...
-    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
     hold on
     plot(ConfiningPressure(timedivindex(3):timedivindex(4)), ...
     st(timedivindex(3):timedivindex(4)), ...
-    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
     
     plot(ConfiningPressure(timedivindex(5):timedivindex(6)), ...
     st(timedivindex(5):timedivindex(6)), ...
-    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
     
     plot(ConfiningPressure(timedivindex(7):timedivindex(8)), ...
     st(timedivindex(7):timedivindex(8)), ...
-    'Marker','.', 'LineStyle','none', 'Color',colc(i));
+    'Marker','.', 'LineStyle','none', 'Color',cold(i));
     
     %Unloading (4 cycles)
     plot(ConfiningPressure(timedivindex(2):timedivindex(3)), ...
@@ -278,7 +278,8 @@ ini = zeros(6,120);
 fin = zeros(6,119);
 
 %% Cycle averaging
-
+figure
+hold on
 % Stress signals are averaged over equivalent loading and unloading
 % stages across multiple compression–decompression cycles.
 for i = 1:6
@@ -291,7 +292,7 @@ for i = 1:6
     ini(i,:) = mean(tomean, 'omitnan');
 
     plot(ConfiningPressure(timedivindex(1):timedivindex(2)), ...
-         ini(i,:), 'LineWidth',5, 'LineStyle','-', 'Color',colc(i));
+         ini(i,:), 'LineWidth',5, 'LineStyle','-', 'Color',cold(i));
 
     len = min([timedivindex(3)-timedivindex(2), ...
                timedivindex(5)-timedivindex(4), ...
@@ -310,6 +311,7 @@ end
 
 ylabel('Internal Stress (kPa)','Interpreter','latex');
 xlabel('External Force (kN)','Interpreter','latex');
+legend('y=0.0993','','y=0.1213','','y=0.1434','','y=0.1654','','y=0.1875','','y=0.2095')
 set(gca,'TickLabelInterpreter','latex','FontSize',14);
 
 %% Stress–pressure relation averaged over sensors

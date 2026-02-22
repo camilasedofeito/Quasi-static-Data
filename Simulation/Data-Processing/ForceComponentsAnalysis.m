@@ -16,8 +16,7 @@ clear; clc; close all;
 
 %% 1. Data loading
 % Table containing force statistics per timestep and region
-scriptDir = pwd;
-directory   = fullfile(scriptDir, '..', 'Data\Forces\xyz_Forces_Medium.csv');
+directory ='C:\Users\Noeli\Documents\Quasi-static\Simulation\Data\Forces\xyz_Forces_Medium.csv'; % path to the Forces file
 region = 'Medium'; %Center, Corner, Medium
 T = readtable(directory);
 
@@ -236,3 +235,5 @@ for k = 1:2
     ylabel(t,labels{k},'Interpreter','latex','FontSize',20)
     exportgraphics(gcf,'..\Figures\'+ string(region) +'\'+string(labels{k}) + ".png",'Resolution',300)
 end
+
+%%
