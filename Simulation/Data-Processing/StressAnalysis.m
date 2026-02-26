@@ -161,12 +161,12 @@ results = find( abs(points(:,1) - 0.1889) < 1e-2  & abs(points(:,2) - 0.1875) < 
 % Six cells are manually selected to represent bottom and side regions
 % of the sample and act as virtual stress sensors.
 
-S1Bottom = 2673%3268;
-S2Bottom = 2691%1972;
-S3Bottom = 2709%2620;
-S1Side   =  2727%2735;
-S2Side   = 2745%2771;
-S3Side   =  2763%2807;
+S1Bottom = 3268;
+S2Bottom = 1972;
+S3Bottom = 2620;
+S1Side   =  2735;
+S2Side   = 2771;
+S3Side   =  2807;
 
 % Sensor positions
 S1BottomPos = points(S1Bottom,:);
@@ -278,7 +278,7 @@ ini = zeros(6,120);
 fin = zeros(6,119);
 
 %% Cycle averaging
-figure
+
 hold on
 % Stress signals are averaged over equivalent loading and unloading
 % stages across multiple compression–decompression cycles.
