@@ -21,7 +21,6 @@ clear; clc; close all;
 
 %% Load wall force and position data
 % Directory containing DEM output files
-scriptDir = pwd;
 directory   = 'C:\Users\Noeli\Documents\Quasi-static\Simulation\Data\Walls'; % path to the Walls folder
 
 % Vertical position of the bottom plate (used to compute strain)

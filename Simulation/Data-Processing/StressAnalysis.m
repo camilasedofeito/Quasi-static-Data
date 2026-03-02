@@ -63,7 +63,7 @@ for i = 3:length(files)-2
     % Extract timestep index from filename
     steps = [steps, str2double(extract(convertCharsToStrings(files{i}), digitsPattern))];
 
-    % Stress tensor components (divided by 2 due to ESyS convention)
+    % Stress tensor components
     sigma_xx = data(:,4);
     sigma_xy = data(:,5);
     sigma_xz = data(:,6);
