@@ -198,12 +198,7 @@ Simulation figures
   Parameters_blockCompression.py (loading protocol, MPI decomposition).
 
   ---
-  Citation
 
-  If you use this dataset or scripts, please cite the associated paper
-  (reference to be added upon publication).
-
-  ---
   Contact
 
   For questions about the data or scripts, please open an issue in this repository.
