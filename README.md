@@ -3,53 +3,7 @@
   reproduce all figures from the paper on stress transmission, force anisotropy,
   and hysteresis in quasi-statically loaded granular materials (glass beads).
 
-  ---
-
-  ## Repository Structure
-
-  Quasi-static-Data-main/
-  ├── Experiments/
-  │   ├── strain_stress_figs1a_c.m       # Fig. 1a, 1c: strain and internal stress
-  │   ├── cummulative_strain_fig3.m      # Fig. 3: cumulative strain vs cycle
-  │   ├── energy_fig3.m                  # Fig. 3: dissipated energy vs cycle
-  │   ├── plotPressure.m                 # QC: pressure signal visualization
-  │   ├── errormc.m                      # Helper: polynomial fit with errors
-  │   ├── Glass beadsGlob.mat            # Pre-processed glass bead data
-  │   ├── ReadyQuasiStaticData_31-Jan-2020_Mov_1.mat
-  │   ├── ReadyQuasiStaticData_03-Feb-2020_Mov_1.mat
-  │   ├── ReadyQuasiStaticData_19-Feb-2020_Mov_1.mat
-  │   ├── ReadyQuasiStaticData_12-Jul-2020_Mov_1.mat
-  │   ├── ReadyQuasiStaticData_12-Aug-2020_Mov_1.mat
-  │   ├── ReadyQuasiStaticData_12-Aug-2020_Mov_2.mat
-  │   ├── ReadyQuasiStaticData_10-02_cycles.mat
-  │   ├── ReadyQuasiStaticData_01-03_Data.mat
-  │   ├── dt_31-Jan-2020.mat             # Sampling timestep for each dataset
-  │   ├── dt_03-Feb-2020.mat
-  │   └── ...
-  └── Simulation/ 
-  
-      ├── Execution/                     # DEM simulation scripts (Python)
-      │   ├── blockCompression.py        # Main ESyS-Particle simulation
-      │   ├── extract_data.py            # VTK → plain-text stress converter
-      │   ├── PDFforce_components.py     # Spatial force statistics → CSV
-      │   ├── stress3vti.py              # Force data → stress tensor grid
-      │   ├── Parameters_blockCompression.py
-      │   └── Parameters_general.py
-      ├── Data-Processing/               # MATLAB post-processing scripts
-      │   ├── WallForcesAnalysis.m       # Macroscopic stress–strain curve
-      │   ├── ForceComponentsAnalysis.m  # Mean/max forces vs pressure
-      │   ├── StressAnalysis.m           # Internal stress tensor vs pressure
-      │   └── errormc.m
-      ├── Data/
-      │   ├── Forces/ForcesFilt/         # filtered_partForce..dat (961 files)
-      │   ├── Stress/                    # data..txt  (955 files)
-      │   └── Walls/                     # floorPosition/Force, wall forces
-      └── Figures/                       # Generated output figures (PNG)
-          ├── Center/ · Medium/ · Corner/
-          └── ...
-
-  ---
-
+ 
   ## Requirements
 
   ### MATLAB (all figure scripts)
