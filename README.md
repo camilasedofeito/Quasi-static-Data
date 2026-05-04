@@ -8,6 +8,7 @@
   ## Repository Structure
 
   Quasi-static-Data-main/
+  
   ├── Experiments/
   │   ├── strain_stress_figs1a_c.m       # Fig. 1a, 1c: strain and internal stress
   │   ├── cummulative_strain_fig3.m      # Fig. 3: cumulative strain vs cycle
