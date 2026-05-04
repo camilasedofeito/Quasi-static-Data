@@ -69,8 +69,8 @@ Requirements
 
   pip install numpy vtk
 
-  ---
-  Reproducing the Figures
+
+Reproducing the Figures
 
   All figure-generating scripts are in Simulation/Data-Processing/. Run them from MATLAB with the working directory set to Simulation/. The scripts read data from Data/ and write figures to Figures/.
 
