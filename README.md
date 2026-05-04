@@ -1,93 +1,205 @@
-This repository contains simulation data and post-processing scripts to reproduce all figures from the paper studying stress transmission, force anisotropy, and hysteresis in quasi-statically loaded granular
-   assemblies.
 
-
-Overview
----------------
-  The dataset comes from a 3D Discrete Element Method (DEM) simulation of a granular block undergoing cyclic compression-decompression. The simulation was run with ESyS-Particle on an MPI cluster.
-  Post-processing scripts extract stress tensors, compute force statistics, and generate publication-ready figures.
-
-  Physical setup:
-  - Box: 0.4 × 0.397 × 0.4 m filled with polydisperse spheres (radius 3–7 mm, density 3000 kg/m³)
-  - Loading: 4 cyclic compression-decompression cycles, 12 mm displacement amplitude
-  - Interaction: Hertzian viscoelastic contact law (E = 46 GPa, ν = 0.245, μ = 0.16)
-  - Three spatial sampling regions: Center, Medium, Corner — each split into top, middle, and bottom sub-zones
+  This repository contains experimental data, simulation data, and scripts to
+  reproduce all figures from the paper on stress transmission, force anisotropy,
+  and hysteresis in quasi-statically loaded granular materials (glass beads).
 
   ---
-  Repository Structure
+
+  ## Repository Structure
 
   Quasi-static-Data-main/
-  
+  ├── Experiments/
+  │   ├── strain_stress_figs1a_c.m       # Fig. 1a, 1c: strain and internal stress
+  │   ├── cummulative_strain_fig3.m      # Fig. 3: cumulative strain vs cycle
+  │   ├── energy_fig3.m                  # Fig. 3: dissipated energy vs cycle
+  │   ├── plotPressure.m                 # QC: pressure signal visualization
+  │   ├── errormc.m                      # Helper: polynomial fit with errors
+  │   ├── Glass beadsGlob.mat            # Pre-processed glass bead data
+  │   ├── ReadyQuasiStaticData_31-Jan-2020_Mov_1.mat
+  │   ├── ReadyQuasiStaticData_03-Feb-2020_Mov_1.mat
+  │   ├── ReadyQuasiStaticData_19-Feb-2020_Mov_1.mat
+  │   ├── ReadyQuasiStaticData_12-Jul-2020_Mov_1.mat
+  │   ├── ReadyQuasiStaticData_12-Aug-2020_Mov_1.mat
+  │   ├── ReadyQuasiStaticData_12-Aug-2020_Mov_2.mat
+  │   ├── ReadyQuasiStaticData_10-02_cycles.mat
+  │   ├── ReadyQuasiStaticData_01-03_Data.mat
+  │   ├── dt_31-Jan-2020.mat             # Sampling timestep for each dataset
+  │   ├── dt_03-Feb-2020.mat
+  │   └── ...
   └── Simulation/
-  
-      ├── Data/
-      │   ├── Forces/
-      │   │   ├── ForcesFilt/          # filtered_partForce.*.dat  (961 files)
-      │   │   ├── xyz_Forces_Center.csv
-      │   │   ├── xyz_Forces_Medium.csv
-      │   │   └── xyz_Forces_Corner.csv
-      │   ├── Stress/
-      │   │   └── data.*.txt           # stress tensor fields (955 files)
-      │   └── Walls/
-      │       ├── floorPosition.dat
-      │       ├── floorForce.dat
-      │       ├── roofForce.dat
-      │       ├── x+WallForce.dat / x-WallForce.dat
-      │       └── z+WallForce.dat / z-WallForce.dat
-      ├── Data-Processing/             # MATLAB analysis scripts
-      │   ├── ForceComponentsAnalysis.m
-      │   ├── StressAnalysis.m
-      │   ├── WallForcesAnalysis.m
-      │   └── errormc.m               # helper: polynomial fit with errors
-      ├── Execution/                   # Simulation and data-extraction scripts
-      │   ├── blockCompression.py      # main DEM simulation
-      │   ├── extract_data.py          # VTK → plain-text converter
-      │   ├── PDFforce_components.py   # spatial force statistics
-      │   ├── stress3vti.py            # stress tensor on regular grid
+      ├── Execution/                     # DEM simulation scripts (Python)
+      │   ├── blockCompression.py        # Main ESyS-Particle simulation
+      │   ├── extract_data.py            # VTK → plain-text stress converter
+      │   ├── PDFforce_components.py     # Spatial force statistics → CSV
+      │   ├── stress3vti.py              # Force data → stress tensor grid
       │   ├── Parameters_blockCompression.py
       │   └── Parameters_general.py
-      └── Figures/                     # output figures (PNG, 300 DPI)
-          ├── FloorForcevsStrain.png
-          ├── Fx/Fy/Fzmax.png, Fx/Fy/Fzmean.png
-          ├── InternalSressvsConfPressure_lateral.png
-          ├── Center/
-          ├── Medium/
-          └── Corner/
+      ├── Data-Processing/               # MATLAB post-processing scripts
+      │   ├── WallForcesAnalysis.m       # Macroscopic stress–strain curve
+      │   ├── ForceComponentsAnalysis.m  # Mean/max forces vs pressure
+      │   ├── StressAnalysis.m           # Internal stress tensor vs pressure
+      │   └── errormc.m
+      ├── Data/
+      │   ├── Forces/ForcesFilt/         # filtered_partForce..dat (961 files)
+      │   ├── Stress/                    # data..txt  (955 files)
+      │   └── Walls/                     # floorPosition/Force, wall forces
+      └── Figures/                       # Generated output figures (PNG)
+          ├── Center/ · Medium/ · Corner/
+          └── ...
 
-Requirements
+  ---
 
-  MATLAB (figure generation)
+  ## Requirements
 
+  ### MATLAB (all figure scripts)
   - MATLAB R2019b or later
-  - No additional toolboxes required (uses built-in polyfit, movmean, smooth)
+  - No additional toolboxes required
 
-  Python (simulation and data extraction)
-
+  ### Python (simulation and data extraction only)
   - Python 3.7+
-  - https://launchpad.net/esys-particle (for running blockCompression.py)
-  - numpy, vtk (for extract_data.py and stress3vti.py)
+  - `numpy`, `vtk`
+  - [ESyS-Particle](https://launchpad.net/esys-particle) (only to re-run the simulation)
 
+  ```bash
   pip install numpy vtk
 
+  ---
+  Reproducing the Figures
 
-Reproducing the Figures
+  Set the MATLAB working directory to Experiments/ before running experimental
+  scripts, and to Simulation/ before running simulation scripts.
 
-  All figure-generating scripts are in Simulation/Data-Processing/. Run them from MATLAB with the working directory set to Simulation/. The scripts read data from Data/ and write figures to Figures/.
+  ---
+  Experimental figures
 
-  Figure: Macroscopic stress–strain curve
+  Figure 1a — Strain vs. confining pressure
 
-  Script: WallForcesAnalysis.m
-  Reads: Data/Walls/floorPosition.dat, floorForce.dat, roofForce.dat, x±WallForce.dat, z±WallForce.dat
+  Script: Experiments/strain_stress_figs1a_c.m
+  Reads: Experiments/Glass beadsGlob.mat
+
+  Computes relative strain from LVDT displacement:
+
+  strain (%) = displacement (mm) × 1e⁻³ / 0.5 m × 100
+
+  Plots compression (solid teal) and decompression (dashed gray) branches for each
+  cycle, plus an inset with the tangent elastic modulus M = dP/dε per cycle.
+
+  ---
+  Figure 1c — Internal stress vs. confining pressure
+
+  Script: Experiments/strain_stress_figs1a_c.m
+  Reads: Experiments/Glass beadsGlob.mat
+
+  Plots lateral stress σ_xx (average of 3 sensors) and vertical stress σ_yy (average
+  of 3 sensors) against confining pressure, with compression and decompression
+  branches separated. Sensor pressures are converted to kPa using the contact area
+  of each transducer tip (r = 0.0185 m) relative to the cell area (0.5 × 0.5 m²).
+
+  ---
+  Figure 3 — Cumulative strain and dissipated energy per cycle
+
+  Scripts:
+  - Experiments/cummulative_strain_fig3.m → cumulative strain panel
+  - Experiments/energy_fig3.m → dissipated energy panel
+
+  Reads: All 6 ReadyQuasiStaticData_*.mat files + corresponding dt_*.mat files
+
+  Both scripts combine six experimental datasets spanning ~400 days of loading.
+  cummulative_strain_fig3.m computes per-cycle strain increment ΔΕ with error bars.
+  energy_fig3.m integrates the pressure–strain hysteresis loop area (W = ∫p dε) for
+  each cycle as a measure of dissipated energy. Both figures share a dual x-axis
+  (cycle number / elapsed time in days).
+
+  ---
+  Simulation figures
+
+  All simulation figures are generated from pre-computed data already in
+  Simulation/Data/. Set the MATLAB working directory to Simulation/ and run:
+
+  Macroscopic stress–strain curve
+
+  Script: Simulation/Data-Processing/WallForcesAnalysis.m
+  Reads: Data/Walls/floorPosition.dat, floorForce.dat, roofForce.dat,
+  x±WallForce.dat, z±WallForce.dat
   Output: Figures/FloorForcevsStrain.png
 
-  Computes macroscopic strain ε = (L₀ − floor displacement)/L₀ and wall stress σ = Force / 0.16 m². Plots compression and decompression branches separately with cycle-averaged curves.
+  Computes strain ε = (L₀ − floor displacement) / L₀ with L₀ = 0.4 m and wall
+  stress σ = Force / 0.16 m². Plots cycle-averaged compression and decompression
+  branches with directional arrows.
 
-Data File Formats
+  ---
+  Mean and maximum contact forces vs. confining pressure
+
+  Script: Simulation/Data-Processing/ForceComponentsAnalysis.m
+  Reads: Data/Forces/xyz_Forces_Center.csv, _Medium.csv, _Corner.csv
+  Output: Figures/Center/, Figures/Medium/, Figures/Corner/ — each with:
+
+  ┌────────────┬───────────────────────────────────────────────────────────────┐
+  │    File    │                            Content                            │
+  ├────────────┼───────────────────────────────────────────────────────────────┤
+  │ meanfx.png │ Mean radial force ⟨Fx⟩ vs. pressure — top / middle / bottom   │
+  ├────────────┼───────────────────────────────────────────────────────────────┤
+  │ meanfy.png │ Mean vertical force ⟨Fy⟩ vs. pressure — top / middle / bottom │
+  ├────────────┼───────────────────────────────────────────────────────────────┤
+  │ Fxmax.png  │ Maximum radial force vs. pressure                             │
+  ├────────────┼───────────────────────────────────────────────────────────────┤
+  │ Fymax.png  │ Maximum vertical force vs. pressure                           │
+  ├────────────┼───────────────────────────────────────────────────────────────┤
+  │ Fzmax.png  │ Maximum tangential force vs. pressure                         │
+  └────────────┴───────────────────────────────────────────────────────────────┘
+
+  ---
+  Internal stress tensor vs. confining pressure
+
+  Script: Simulation/Data-Processing/StressAnalysis.m
+  Reads: Data/Stress/data.*.txt, Data/Walls/floorForce.dat
+  Output: Screen figures (add saveas calls to export)
+
+  Places 6 virtual sensors in the stress field (3 bottom → σ_yy, 3 lateral → σ_xx),
+  applies cycle averaging, and plots internal stress vs. confining pressure with
+  hysteresis. Also includes a consistency check comparing the section-integrated
+  stress with the measured wall force.
+
+  ---
+  Data File Formats
+
+  Glass beadsGlob.mat
+
+  ┌──────────────────┬─────────────────────────────────────────────────────────────────────────────────┐
+  │     Variable     │                                   Description                                   │
+  ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ DataTotGlob      │ Internal pressures (N × 6): columns 1–3 lateral σ_xx, columns 4–6 vertical σ_yy │
+  ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ InputPresureGlob │ Applied confining pressure (kPa), shape (N,)                                    │
+  ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ DisplacementGlob │ LVDT displacement (mm), shape (N,)                                              │
+  ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ VeldltGlob       │ Loading velocity metric, shape (N,)                                             │
+  ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+  │ Indices          │ Timestep indices marking each pressure step boundary                            │
+  └──────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
+
+  ReadyQuasiStaticData_*.mat
+
+  ┌──────────────────┬──────────────────────────────────────────────────────────────────────────────┐
+  │     Variable     │                                 Description                                  │
+  ├──────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+  │ ExternalPressure │ Confining pressure time series (kPa)                                         │
+  ├──────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+  │ Strain           │ Sample strain (%)                                                            │
+  ├──────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+  │ stops            │ N × 2 matrix with start/end indices of each compression and relaxation phase │
+  └──────────────────┴──────────────────────────────────────────────────────────────────────────────┘
+
+  dt_*.mat
+
+  Single scalar — sampling timestep in seconds. Converts sample indices to physical time.
 
   filtered_partForce.*.dat
 
-  ESyS-Particle RAW_WITH_POS_ID format. Each row is one contact:
+  ESyS-Particle RAW_WITH_POS_ID format. One contact per row:
   particle_id_1  particle_id_2  x  y  z  Fx  Fy  Fz
+  Indexed by simulation timestep (e.g., filtered_partForce.100000.dat).
 
   data.*.txt
 
@@ -96,30 +208,47 @@ Data File Formats
 
   xyz_Forces_*.csv
 
+  One row per (timestep, zone):
   timestep, zone, N, Fy_mean, Fy_std, Fy_max, frac_strong_y,
   Fx_mean, Fx_std, Fx_max, frac_strong_x,
   Fz_mean, Fz_std, Fz_max, frac_strong_z, anis_xz
-  - frac_strong: fraction of contacts with F > ⟨F⟩ (strong network)
-  - anis_xz: horizontal anisotropy index (⟨Fx²⟩ − ⟨Fz²⟩)/(⟨Fx²⟩ + ⟨Fz²⟩)
+  - frac_strong: fraction of contacts with F > ⟨F⟩
+  - anis_xz: (⟨Fx²⟩ − ⟨Fz²⟩) / (⟨Fx²⟩ + ⟨Fz²⟩)
 
-  Wall files
+  Wall files (floorPosition.dat, etc.)
 
-  Two-column ASCII: simulation time and scalar value.
+  Two-column ASCII: simulation time and scalar value (force in N or position in m).
 
+  ---
+  Re-running the Simulation
 
-Re-running the Simulation
-
- Note: Requires a cluster with ESyS-Particle. Not needed to reproduce figures from pre-computed data in Data/.
+  ▎ The pre-computed data in Simulation/Data/ is sufficient to reproduce all
+  ▎ simulation figures. Re-running requires a cluster with ESyS-Particle and MPI.
 
   cd Simulation/Execution
   mpirun -np 18 python blockCompression.py <geometry_file>
 
-  After simulation, convert to analysis-ready formats:
+  Then convert outputs to analysis-ready formats:
+
+  # stress tensor grid from contact forces
   python stress3vti.py partForce.N.dat output.vti Xmin Xmax Ymin Ymax Zmin Zmax Nx Ny Nz
-  python extract_data.py       # converts .vti → data.*.txt
-  python PDFforce_components.py  # computes xyz_Forces_*.csv
 
+  # VTK → plain text
+  python extract_data.py
 
-Contact
+  # spatial force statistics → CSV
+  python PDFforce_components.py
+
+  Parameters are in Parameters_general.py (material properties) and
+  Parameters_blockCompression.py (loading protocol, MPI decomposition).
+
+  ---
+  Citation
+
+  If you use this dataset or scripts, please cite the associated paper
+  (reference to be added upon publication).
+
+  ---
+  Contact
 
   For questions about the data or scripts, please open an issue in this repository.
