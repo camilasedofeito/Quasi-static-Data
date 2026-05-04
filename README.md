@@ -8,7 +8,9 @@
   ## Repository Structure
 
   Quasi-static-Data-main/
+  
   ├── Experiments/
+  
   │   ├── strain_stress_figs1a_c.m       # Fig. 1a, 1c: strain and internal stress
   │   ├── cummulative_strain_fig3.m      # Fig. 3: cumulative strain vs cycle
   │   ├── energy_fig3.m                  # Fig. 3: dissipated energy vs cycle
@@ -27,6 +29,7 @@
   │   ├── dt_03-Feb-2020.mat
   │   └── ...
   └── Simulation/ 
+  
       ├── Execution/                     # DEM simulation scripts (Python)
       │   ├── blockCompression.py        # Main ESyS-Particle simulation
       │   ├── extract_data.py            # VTK → plain-text stress converter
