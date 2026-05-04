@@ -21,7 +21,6 @@ Overview
   └── Simulation/
   
       ├── Data/
-      
       │   ├── Forces/
       │   │   ├── ForcesFilt/          # filtered_partForce.*.dat  (961 files)
       │   │   ├── xyz_Forces_Center.csv
