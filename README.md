@@ -17,26 +17,47 @@ Overview
   Repository Structure
 
   Quasi-static-Data-main/
+  
   └── Simulation/
+  
       ├── Data/
+      
       │   ├── Forces/
+      
       │   │   ├── ForcesFilt/          # filtered_partForce.*.dat  (961 files)
+      
       │   │   ├── xyz_Forces_Center.csv
+      
       │   │   ├── xyz_Forces_Medium.csv
+      
       │   │   └── xyz_Forces_Corner.csv
+      
       │   ├── Stress/
+      
       │   │   └── data.*.txt           # stress tensor fields (955 files)
+      
       │   └── Walls/
+      
       │       ├── floorPosition.dat
+      
       │       ├── floorForce.dat
+      
       │       ├── roofForce.dat
+      
       │       ├── x+WallForce.dat / x-WallForce.dat
+      
       │       └── z+WallForce.dat / z-WallForce.dat
+      
       ├── Data-Processing/             # MATLAB analysis scripts
+      
       │   ├── ForceComponentsAnalysis.m
+      
       │   ├── StressAnalysis.m
+      
       │   ├── WallForcesAnalysis.m
+      
       │   └── errormc.m               # helper: polynomial fit with errors
+      
       ├── Execution/                   # Simulation and data-extraction scripts
       │   ├── blockCompression.py      # main DEM simulation
       │   ├── extract_data.py          # VTK → plain-text converter
