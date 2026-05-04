@@ -25,7 +25,7 @@
   scripts, and to Simulation/ before running simulation scripts.
 
   ---
-### Experimental figures
+Experimental figures
 
   Figure 1a — Strain vs. confining pressure
 
@@ -66,7 +66,7 @@
   (cycle number / elapsed time in days).
 
   ---
-### Simulation figures
+Simulation figures
 
   All simulation figures are generated from pre-computed data already in
   Simulation/Data/. Set the MATLAB working directory to Simulation/ and run:
